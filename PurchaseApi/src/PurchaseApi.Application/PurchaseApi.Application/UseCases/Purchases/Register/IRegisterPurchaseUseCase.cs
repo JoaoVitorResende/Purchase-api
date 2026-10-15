@@ -5,6 +5,6 @@ namespace PurchaseApi.Application.UseCases.Purchases.Register
 {
     public interface IRegisterPurchaseUseCase
     {
-        public ResponsePurchase Execute(RequestPurchaseItem req);
+        public Task<ResponsePurchase> Execute(RequestPurchaseItem req);
     }
 }
