@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="FluentValidation" Version="12.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\PurchaseApi.Communication\PurchaseApi.Communication\PurchaseApi.Communication.csproj" />
+    <ProjectReference Include="..\..\PurchaseApi.Domain\PurchaseApi.Domain\PurchaseApi.Domain.csproj" />
+    <ProjectReference Include="..\..\PurchaseApi.Exception\PurchaseApi.Exception\PurchaseApi.Exception.csproj" />
+  </ItemGroup>
+
+</Project>

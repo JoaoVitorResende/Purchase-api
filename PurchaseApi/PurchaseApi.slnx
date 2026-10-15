@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/PurchaseApi.Api/">
+    <Project Path="src/PurchaseApi.Api/PurchaseApi/PurchaseApi.csproj" />
+  </Folder>
+  <Folder Name="/src/PurchaseApi.Application/">
+    <Project Path="src/PurchaseApi.Application/PurchaseApi.Application/PurchaseApi.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/PurchaseApi.Communication/">
+    <Project Path="src/PurchaseApi.Communication/PurchaseApi.Communication/PurchaseApi.Communication.csproj" />
+  </Folder>
+  <Folder Name="/src/PurchaseApi.Domain/">
+    <Project Path="src/PurchaseApi.Domain/PurchaseApi.Domain/PurchaseApi.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/PurchaseApi.Exception/">
+    <Project Path="src/PurchaseApi.Exception/PurchaseApi.Exception/PurchaseApi.Exception.csproj" />
+  </Folder>
+  <Folder Name="/src/PurchaseApi.Infrastructure/">
+    <Project Path="src/PurchaseApi.Infrastructure/PurchaseApi.Infrastructure/PurchaseApi.Infrastructure.csproj" />
+  </Folder>
+</Solution>
