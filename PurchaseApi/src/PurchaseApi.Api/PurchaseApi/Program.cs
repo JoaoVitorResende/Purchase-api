@@ -1,5 +1,6 @@
 using PurchaseApi.Application.UseCases;
-
+using PurchaseApi.Infrastructure;
+using PurchaseApi.Infrastructure.Migrations;
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -25,5 +27,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+await DataBaseMigration.MigrateDataBase(app.Services);
 
 app.Run();

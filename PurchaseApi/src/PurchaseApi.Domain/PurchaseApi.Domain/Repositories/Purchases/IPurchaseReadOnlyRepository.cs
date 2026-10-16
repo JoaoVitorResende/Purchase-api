@@ -4,6 +4,6 @@ namespace PurchaseApi.Domain.Repositories.Purchases
 {
     public interface IPurchaseReadOnlyRepository
     {
-       
+        Task<List<Purchase>> GetAll();
     }
 }

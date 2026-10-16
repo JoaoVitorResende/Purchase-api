@@ -1,9 +1,10 @@
-﻿using PurchaseApi.Domain.entities;
+﻿using Microsoft.EntityFrameworkCore;
+using PurchaseApi.Domain.entities;
 using PurchaseApi.Domain.Repositories.Purchases;
 
 namespace PurchaseApi.Infrastructure.DataAcess.Repositories
 {
-    internal class PurchaseRepository : IPurchaseWriteOnlyRepository
+    internal class PurchaseRepository : IPurchaseWriteOnlyRepository, IPurchaseReadOnlyRepository
     {
         private readonly PurchaseDbContext _dbContext;
         public PurchaseRepository(PurchaseDbContext dbContext)
@@ -14,6 +15,13 @@ namespace PurchaseApi.Infrastructure.DataAcess.Repositories
         {
             await _dbContext.Purchase.AddAsync(purchase);
         }
-    }
+
+        public async Task<List<Purchase>> GetAll()
+        {
+            return await _dbContext.Purchase
+              .AsNoTracking()
+              .OrderBy(p => p.Id)
+              .ToListAsync();
+        }
     }
 }

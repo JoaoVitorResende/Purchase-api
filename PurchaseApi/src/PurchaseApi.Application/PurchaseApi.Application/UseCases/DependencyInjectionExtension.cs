@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PurchaseApi.Application.AutoMapper;
+using PurchaseApi.Application.UseCases.Purchases.Get;
 using PurchaseApi.Application.UseCases.Purchases.Register;
 
 namespace PurchaseApi.Application.UseCases
@@ -12,11 +14,12 @@ namespace PurchaseApi.Application.UseCases
         }
         private static void AddAutoMapper(IServiceCollection services)
         {
-            //services.AddAutoMapper(typeof(AutoMapping));
+            services.AddAutoMapper(typeof(AutoMapping));
         }
         private static void AddUseCases(IServiceCollection services)
         {
             services.AddScoped<IRegisterPurchaseUseCase, RegisterPurchaseUseCase>();
+            services.AddScoped<IGetPurchasesUseCase, GetPurchasesUseCase>();
         }
     }
 }
