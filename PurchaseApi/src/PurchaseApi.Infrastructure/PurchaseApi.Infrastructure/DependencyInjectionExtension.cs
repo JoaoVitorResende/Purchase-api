@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PurchaseApi.Domain.Repositories;
 using PurchaseApi.Domain.Repositories.Purchases;
+using PurchaseApi.Domain.Services;
 using PurchaseApi.Infrastructure.DataAcess;
 using PurchaseApi.Infrastructure.DataAcess.Repositories;
+using PurchaseApi.Infrastructure.Messaging;
 
 namespace PurchaseApi.Infrastructure
 {
@@ -14,12 +17,39 @@ namespace PurchaseApi.Infrastructure
         {
             AddDbContext(services, configuration);
             AddRepositories(services);
+            RabbitmqConfiguration(services, configuration);
+        }
+
+        private static void RabbitmqConfiguration(IServiceCollection services, IConfiguration configuration)
+        {
+            var host = configuration["RabbitMq:Host"];
+            if (string.IsNullOrWhiteSpace(host))
+                throw new InvalidOperationException("RabbitMq:Host não configurado.");
+
+            var user = configuration["RabbitMq:User"] ?? "guest";
+            var pass = configuration["RabbitMq:Password"] ?? "guest";
+
+            services.AddScoped<IPurchaseEventPublisher, PurchaseEventPublisher>();
+
+            services.AddMassTransit(x =>
+            {
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(host, "/", h =>
+                    {
+                        h.Username(user);
+                        h.Password(pass);
+                    });
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
         }
 
         private static void AddRepositories(IServiceCollection services)
         {
             services.AddScoped<IPurchaseReadOnlyRepository, PurchaseRepository>();
             services.AddScoped<IPurchaseWriteOnlyRepository, PurchaseRepository>();
+            services.AddScoped<IPurchaseEventPublisher, PurchaseEventPublisher>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 

@@ -2,9 +2,13 @@
 using PurchaseApi.Application.UseCases.Purchase;
 using PurchaseApi.Communication.Request;
 using PurchaseApi.Communication.Response;
+using PurchaseApi.Domain.entities;
+using PurchaseApi.Domain.Events;
 using PurchaseApi.Domain.Repositories;
 using PurchaseApi.Domain.Repositories.Purchases;
+using PurchaseApi.Domain.Services;
 using StoreApi.Exception.ExceptionBase;
+using System.Security.Principal;
 
 namespace PurchaseApi.Application.UseCases.Purchases.Register
 {
@@ -13,12 +17,17 @@ namespace PurchaseApi.Application.UseCases.Purchases.Register
         private readonly IMapper _mapper;
         private readonly IPurchaseWriteOnlyRepository _writeRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPurchaseEventPublisher _publisher;
 
-        public RegisterPurchaseUseCase(IMapper mapper, IPurchaseWriteOnlyRepository writeRepository, IUnitOfWork unitOfWork)
+        public RegisterPurchaseUseCase(IMapper mapper,
+            IPurchaseWriteOnlyRepository writeRepository,
+            IUnitOfWork unitOfWork,
+            IPurchaseEventPublisher publisher)
         {
             _mapper = mapper;
             _writeRepository = writeRepository;
             _unitOfWork = unitOfWork;
+            _publisher = publisher;
         }
 
         public async Task<ResponsePurchase> Execute(RequestPurchaseItem req)
@@ -27,7 +36,7 @@ namespace PurchaseApi.Application.UseCases.Purchases.Register
             var entity = _mapper.Map<Domain.entities.Purchase>(req);
             await _writeRepository.Add(entity);
             await _unitOfWork.Commit();
-
+            await _publisher.PublishPurchaseCreatedAsync(new PurchaseCreatedEvent(entity.Id, entity.Total, DateTime.UtcNow));
             return _mapper.Map<ResponsePurchase>(entity);
         }
 

@@ -4,8 +4,9 @@ namespace PurchaseApi.Domain.entities
 {
     public class Purchase
     {
-        public long Id { get; set; }
-        public required string itemID { get; set; }
-        public PaymentType paymentType { get; set; }
+        public Guid Id { get; set; }
+        public required string ItemID { get; set; }
+        public PaymentType PaymentType { get; set; }
+        public decimal Total {  get; set; }
     }
 }
