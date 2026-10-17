@@ -1,4 +1,4 @@
-﻿using PurchaseApi.Domain.Events;
+﻿using Contracts.Events;
 
 namespace PurchaseApi.Domain.Services
 {

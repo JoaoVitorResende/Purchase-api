@@ -1,5 +1,5 @@
-﻿using MassTransit;
-using PurchaseApi.Domain.Events;
+﻿using Contracts.Events;
+using MassTransit;
 using PurchaseApi.Domain.Services;
 
 namespace PurchaseApi.Infrastructure.Messaging
