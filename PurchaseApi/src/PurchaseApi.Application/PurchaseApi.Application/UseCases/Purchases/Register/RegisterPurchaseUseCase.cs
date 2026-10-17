@@ -34,7 +34,13 @@ namespace PurchaseApi.Application.UseCases.Purchases.Register
             var entity = _mapper.Map<Domain.entities.Purchase>(req);
             await _writeRepository.Add(entity);
             await _unitOfWork.Commit();
-            await _publisher.PublishPurchaseCreatedAsync(new PurchaseCreatedEvent(entity.Id, entity.Total, DateTime.UtcNow));
+            await _publisher.PublishPurchaseCreatedAsync(
+        new PurchaseCreatedEvent(
+            PurchaseId: entity.Id,
+            ItemId: entity.ItemID,
+            Quantity: entity.Quantity,
+            Total: entity.Total,
+            CreatedAt: DateTime.UtcNow));
             return _mapper.Map<ResponsePurchase>(entity);
         }
 

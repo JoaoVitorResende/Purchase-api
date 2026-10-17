@@ -38,6 +38,10 @@ namespace PurchaseApi.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("payment_type");
 
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("numeric")
+                        .HasColumnName("quantity");
+
                     b.Property<decimal>("Total")
                         .HasColumnType("numeric")
                         .HasColumnName("total");

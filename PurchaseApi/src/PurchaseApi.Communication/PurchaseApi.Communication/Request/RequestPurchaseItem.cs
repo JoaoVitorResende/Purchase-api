@@ -6,6 +6,7 @@ namespace PurchaseApi.Communication.Request
     {
         public required string itemID { get; set; }
         public PaymentType paymentType { get; set; }
+        public decimal Quantity { get; set; }
         public decimal Total { get; set; }
     }
 }

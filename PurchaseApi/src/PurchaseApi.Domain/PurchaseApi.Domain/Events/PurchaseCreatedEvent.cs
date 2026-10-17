@@ -1,2 +1,2 @@
 ﻿namespace Contracts.Events;
-public record PurchaseCreatedEvent(Guid PurchaseId, decimal Total, DateTime CreatedAt);
+public record PurchaseCreatedEvent(Guid PurchaseId, string ItemId, decimal Quantity, decimal Total, DateTime CreatedAt);
