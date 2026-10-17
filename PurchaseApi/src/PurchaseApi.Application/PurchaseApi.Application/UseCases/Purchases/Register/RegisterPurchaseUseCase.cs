@@ -2,13 +2,11 @@
 using PurchaseApi.Application.UseCases.Purchase;
 using PurchaseApi.Communication.Request;
 using PurchaseApi.Communication.Response;
-using PurchaseApi.Domain.entities;
 using PurchaseApi.Domain.Events;
 using PurchaseApi.Domain.Repositories;
 using PurchaseApi.Domain.Repositories.Purchases;
 using PurchaseApi.Domain.Services;
 using StoreApi.Exception.ExceptionBase;
-using System.Security.Principal;
 
 namespace PurchaseApi.Application.UseCases.Purchases.Register
 {
