@@ -23,5 +23,11 @@ namespace PurchaseApi.Infrastructure.DataAcess.Repositories
               .OrderBy(p => p.Id)
               .ToListAsync();
         }
+
+        public async Task<Purchase?> GetById(Guid id)
+        {
+            return await _dbContext.Purchase
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
     }
 }

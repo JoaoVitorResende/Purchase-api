@@ -42,6 +42,14 @@ namespace PurchaseApi.Infrastructure.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("quantity");
 
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("text")
+                        .HasColumnName("rejection_reason");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
                     b.Property<decimal>("Total")
                         .HasColumnType("numeric")
                         .HasColumnName("total");

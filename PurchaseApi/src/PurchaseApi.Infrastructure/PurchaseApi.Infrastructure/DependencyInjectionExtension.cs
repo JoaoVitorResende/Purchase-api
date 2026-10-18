@@ -13,14 +13,17 @@ namespace PurchaseApi.Infrastructure
 {
     public static class DependencyInjectionExtension
     {
-        public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static void AddInfrastructure(
+         this IServiceCollection services,
+         IConfiguration configuration,
+         Action<IBusRegistrationConfigurator>? configureConsumers = null)
         {
             AddDbContext(services, configuration);
             AddRepositories(services);
-            RabbitmqConfiguration(services, configuration);
+            RabbitmqConfiguration(services, configuration, configureConsumers);
         }
 
-        private static void RabbitmqConfiguration(IServiceCollection services, IConfiguration configuration)
+        private static void RabbitmqConfiguration(IServiceCollection services, IConfiguration configuration, Action<IBusRegistrationConfigurator>? configureConsumers)
         {
             var host = configuration["RabbitMq:Host"];
             if (string.IsNullOrWhiteSpace(host))
@@ -33,6 +36,8 @@ namespace PurchaseApi.Infrastructure
 
             services.AddMassTransit(x =>
             {
+                configureConsumers?.Invoke(x);
+
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(host, "/", h =>

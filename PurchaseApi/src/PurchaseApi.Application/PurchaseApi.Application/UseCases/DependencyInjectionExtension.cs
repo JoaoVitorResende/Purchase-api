@@ -2,6 +2,7 @@
 using PurchaseApi.Application.AutoMapper;
 using PurchaseApi.Application.UseCases.Purchases.Get;
 using PurchaseApi.Application.UseCases.Purchases.Register;
+using PurchaseApi.Application.UseCases.Purchases.Result;
 
 namespace PurchaseApi.Application.UseCases
 {
@@ -20,6 +21,7 @@ namespace PurchaseApi.Application.UseCases
         {
             services.AddScoped<IRegisterPurchaseUseCase, RegisterPurchaseUseCase>();
             services.AddScoped<IGetPurchasesUseCase, GetPurchasesUseCase>();
+            services.AddScoped<IProcessStockResultUseCase, ProcessStockResultUseCase>();
         }
     }
 }
