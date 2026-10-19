@@ -1,12 +1,56 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-COPY . .
-RUN dotnet restore PurchaseApi.Api/PurchaseApi.Api.csproj
-RUN dotnet publish PurchaseApi.Api/PurchaseApi.Api.csproj -c Release -o /app/publish --no-restore
+services:
+  purchases-db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: purchases
+    ports:
+      - "5432:5432"
+    volumes:
+      - purchases-db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d purchases"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
-WORKDIR /app
-COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
-ENTRYPOINT ["dotnet", "PurchaseApi.Api.dll"]
+  floci:
+    image: floci/floci:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - FLOCI_HOSTNAME=floci
+      - FLOCI_SERVICES_LAMBDA_DOCKER_NETWORK=shared-net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  purchases-api:
+    build:
+      context: ./PurchaseApi/src
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Postgres=Host=purchases-db;Port=5432;Database=purchases;Username=${PG_USER};Password=${PG_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__User=${RABBIT_USER}
+      - RabbitMq__Password=${RABBIT_PASSWORD}
+      - AWS_ENDPOINT_URL=http://floci:4566
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    depends_on:
+      purchases-db:
+        condition: service_healthy
+      floci:
+        condition: service_started
+
+volumes:
+  purchases-db-data:
+
+networks:
+  default:
+    name: shared-net
+    external: true

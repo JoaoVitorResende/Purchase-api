@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using Amazon.SQS;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ namespace PurchaseApi.Infrastructure
             AddDbContext(services, configuration);
             AddRepositories(services);
             RabbitmqConfiguration(services, configuration, configureConsumers);
+            AddNotifications(services);
         }
 
         private static void RabbitmqConfiguration(IServiceCollection services, IConfiguration configuration, Action<IBusRegistrationConfigurator>? configureConsumers)
@@ -49,12 +51,18 @@ namespace PurchaseApi.Infrastructure
                 });
             });
         }
+        private static void AddNotifications(IServiceCollection services)
+        {
+            services.AddSingleton<IAmazonSQS>(_ => new AmazonSQSClient());
+            services.AddSingleton<IPurchaseNotificationPublisher, PurchaseNotificationPublisher>();
+        }
 
         private static void AddRepositories(IServiceCollection services)
         {
             services.AddScoped<IPurchaseReadOnlyRepository, PurchaseRepository>();
             services.AddScoped<IPurchaseWriteOnlyRepository, PurchaseRepository>();
             services.AddScoped<IPurchaseEventPublisher, PurchaseEventPublisher>();
+            services.AddScoped<IPurchaseNotificationPublisher, PurchaseNotificationPublisher>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
