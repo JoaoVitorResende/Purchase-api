@@ -18,4 +18,7 @@
   <Folder Name="/src/PurchaseApi.Infrastructure/">
     <Project Path="src/PurchaseApi.Infrastructure/PurchaseApi.Infrastructure/PurchaseApi.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PurchaseApi.Aplicartions/PurchaseApi.Aplicartions.csproj" Id="768812c5-4a03-4539-b46a-507f81ea506e" />
+  </Folder>
 </Solution>
