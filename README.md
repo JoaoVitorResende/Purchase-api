@@ -17,12 +17,18 @@ ASP.NET Core purchase API that integrates asynchronously with the StoreApi (stoc
 6. The PurchaseApi publishes a message to the `purchase-status-changed` SQS queue.
 7. The `purchase-notification` Lambda is triggered by the queue and logs the notification.
 
-```
-Client -> PurchaseApi -> RabbitMQ -> StoreApi
-               ^                        |
-               +---- StockProcessedEvent+
-               |
-               +-> SQS (purchase-status-changed) -> Lambda (notification)
+```mermaid
+flowchart LR
+    Client([Client]) -->|creates purchase| PA[PurchaseApi]
+    PA --> PDB[("PostgreSQL<br/>purchases")]
+    PA -->|PurchaseCreatedEvent| MQ{{RabbitMQ}}
+    MQ --> SA[StoreApi]
+    SA --> MDB[("MongoDB<br/>items and stock")]
+    SA --> SDB[("PostgreSQL<br/>stores and categories")]
+    SA -->|StockProcessedEvent| MQ
+    MQ --> PA
+    PA -->|PurchaseStatusChangedMessage| SQS[["SQS<br/>purchase-status-changed"]]
+    SQS --> L["Lambda<br/>purchase-notification"]
 ```
 
 ## Tech stack
