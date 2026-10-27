@@ -5,11 +5,11 @@
 
 # PurchaseApi
 
-ASP.NET Core purchase API that integrates asynchronously with the StoreApi (stock deduction) and triggers status-change notifications through an SQS queue consumed by an AWS Lambda. AWS services run locally with Floci.
+ASP.NET Core purchase API that integrates asynchronously with the StoreApi (stock deduction) and triggers status-change notifications through an SQS queue consumed by an AWS Lambda. AWS services run locally with Floci. Clients reach it through the StoreApiGateway.
 
 ## Flow
 
-1. The client creates a purchase in the PurchaseApi, which saves it with status `Pending`.
+1. The client creates a purchase through the StoreApiGateway, which forwards it to the PurchaseApi. The PurchaseApi saves it with status `Pending`.
 2. The PurchaseApi publishes a `PurchaseCreatedEvent` to RabbitMQ (MassTransit).
 3. The StoreApi consumes the event and deducts stock idempotently.
 4. The StoreApi replies with a `StockProcessedEvent`.
@@ -19,7 +19,8 @@ ASP.NET Core purchase API that integrates asynchronously with the StoreApi (stoc
 
 ```mermaid
 flowchart LR
-    Client([Client]) -->|creates purchase| PA[PurchaseApi]
+    Client([Client]) -->|creates purchase| GW[StoreApiGateway]
+    GW --> PA[PurchaseApi]
     PA --> PDB[("PostgreSQL<br/>purchases")]
     PA -->|PurchaseCreatedEvent| MQ{{RabbitMQ}}
     MQ --> SA[StoreApi]
@@ -61,6 +62,41 @@ The `AddApplication` and `AddInfrastructure(builder.Configuration)` extensions r
 | Confirmed | Stock reserved successfully |
 | Rejected | Stock refused; the reason is stored in `RejectionReason` |
 
+## Endpoints
+
+| Method | Route | Description |
+| --- | --- | --- |
+| POST | /api/purchases | Creates a purchase (status `Pending`); returns 201 with the `Location` header |
+| GET | /api/purchases | Lists purchases |
+| GET | /api/purchases/{id} | Returns one purchase; 404 if it does not exist |
+
+Enums are serialized as text. Request example:
+
+```json
+{
+  "itemID": "6ad4def84c3f10514043a630",
+  "paymentType": "CreditCard",
+  "quantity": 1,
+  "total": 1
+}
+```
+
+`paymentType` accepts `Cash`, `CreditCard`, `DebitCard` and `EletronicTransfer`.
+
+Response example:
+
+```json
+{
+  "id": "99fc9c5a-779b-4f8e-88ef-2ab2ab9dde87",
+  "itemID": "6ad754ebd9129bd198370cd3",
+  "paymentType": "CreditCard",
+  "quantity": 1,
+  "total": 1,
+  "status": "Confirmed",
+  "rejectionReason": null
+}
+```
+
 ## Messages
 
 **PurchaseCreatedEvent** and **StockProcessedEvent** travel through RabbitMQ and use the `Contracts.Events` namespace in both APIs.
@@ -82,10 +118,11 @@ The queue name is configured in `Aws:NotificationQueueName` (default: `purchase-
 
 Prerequisites: Docker, Docker Compose and the AWS CLI.
 
-The PurchaseApi and the StoreApi have their own compose files and communicate through the shared `shared-net` network. RabbitMQ comes up with the StoreApi compose.
+The PurchaseApi, the StoreApi and the StoreApiGateway have their own compose files and communicate through the shared `shared-net` network. RabbitMQ comes up with the StoreApi compose.
 
 1. Start the StoreApi compose (RabbitMQ, database and API).
 2. Start the PurchaseApi compose (`purchases-db`, `floci` and `purchases-api`).
+3. Start the StoreApiGateway compose, if a client such as the web front end needs to reach the APIs.
 
 | Service | Port |
 | --- | --- |
@@ -94,8 +131,10 @@ The PurchaseApi and the StoreApi have their own compose files and communicate th
 | Floci (local AWS) | 4566 |
 | StoreApi | 8080 |
 | RabbitMQ | 5672 (management UI on 15672) |
+| StoreApiGateway | 8082 |
+| purchase-web (Next.js) | 3000 |
 
-The PurchaseApi environment variables live in its own `.env` file, loaded through the compose `env_file`.
+The environment variables live in a `.env` file next to the compose file. Docker Compose reads it to fill the `${...}` placeholders (database and RabbitMQ credentials). A `.env.example` lists the variable names without values.
 
 ## Local AWS setup (Floci)
 
@@ -165,3 +204,4 @@ Notificação: a compra 815dec32-7ff3-4544-b334-9b665063b86d foi CONFIRMADA.
 ```
 
 If nothing reaches the queue, check the PurchaseApi logs: SQS send failures are logged (without breaking the purchase) with the message "Falha ao enviar a notificação da compra".
+
