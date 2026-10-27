@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using PurchaseApi.Communication.Response;
+using PurchaseApi.Domain.entities;
 using PurchaseApi.Domain.Repositories.Purchases;
+using StoreApi.Exception.ExceptionBase;
 
 namespace PurchaseApi.Application.UseCases.Purchases.Get
 {
@@ -19,6 +21,16 @@ namespace PurchaseApi.Application.UseCases.Purchases.Get
             var purchases = await _repository.GetAll();
 
             return _mapper.Map<List<ResponsePurchase>>(purchases);
+        }
+
+        public async Task<ResponsePurchase> GetById(Guid id)
+        {
+            var purchases = await _repository.GetById(id);
+
+            if (purchases is null)
+                throw new NotFoundException("Compra não encontrada.");
+
+            return _mapper.Map<ResponsePurchase>(purchases);
         }
     }
 }
